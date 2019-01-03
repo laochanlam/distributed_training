@@ -37,10 +37,9 @@ def main(_):
             hooks = [tf.train.StopAtStepHook(last_step=2000)]
             global_step = tf.train.get_or_create_global_step()
             optimizer = tf.train.AdamOptimizer(learning_rate=1e-04)
-
+            train_op = optimizer.minimize(loss, global_step=global_step, aggregation_method=tf.AggregationMethod.ADD_N)
+            
             with tf.train.MonitoredTrainingSession(master=server.target, is_chief=(FLAGS.task_index == 0), checkpoint_dir="./checkpoint_dir", hooks=hooks) as mon_sess:
-
-                train_op = optimizer.minimize(loss, global_step=global_step, aggregation_method=tf.AggregationMethod.ADD_N)
 
                 while not mon_sess.should_stop():
                     img_batch, label_batch = mnist.train.next_batch(32)
